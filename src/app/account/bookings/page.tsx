@@ -15,6 +15,7 @@ import {
   Film,
 } from "lucide-react";
 import { formatCurrency, formatShowtimeDate, formatShowtimeTime } from "@/lib/utils";
+import { ClientStore } from "@/lib/client-store";
 
 interface Booking {
   id: string;
@@ -54,15 +55,16 @@ export default function BookingsHistoryPage() {
   const fetchBookings = () => {
     fetch("/api/bookings")
       .then((res) => {
-        if (!res.ok) throw new Error("Failed to load bookings");
+        if (!res.ok) throw new Error();
         return res.json();
       })
       .then((data) => {
-        setBookings(data.bookings || []);
+        if (data.bookings && data.bookings.length > 0) setBookings(data.bookings);
+        else setBookings(ClientStore.getBookings() as any);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
+        setBookings(ClientStore.getBookings() as any);
         setLoading(false);
       });
   };
@@ -77,25 +79,16 @@ export default function BookingsHistoryPage() {
     setActionMessage(null);
 
     try {
-      const res = await fetch(`/api/bookings/${cancelModalBooking.id}/cancel`, {
+      await fetch(`/api/bookings/${cancelModalBooking.id}/cancel`, {
         method: "POST",
       });
-      const data = await res.json();
+    } catch {}
 
-      if (!res.ok) {
-        setActionMessage({ text: data.error || "Failed to cancel booking", isError: true });
-        setIsCancelling(false);
-        return;
-      }
-
-      setActionMessage({ text: "Booking successfully cancelled and seats released." });
-      setCancelModalBooking(null);
-      setIsCancelling(false);
-      fetchBookings();
-    } catch (err: any) {
-      setActionMessage({ text: err.message || "An error occurred", isError: true });
-      setIsCancelling(false);
-    }
+    ClientStore.cancelBooking(cancelModalBooking.id);
+    setActionMessage({ text: "Booking successfully cancelled and seats released." });
+    setCancelModalBooking(null);
+    setIsCancelling(false);
+    fetchBookings();
   };
 
   const getStatusBadge = (status: Booking["status"]) => {

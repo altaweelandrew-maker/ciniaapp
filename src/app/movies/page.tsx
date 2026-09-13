@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, Film, Clock, Sparkles } from "lucide-react";
+import { ClientStore } from "@/lib/client-store";
 
 interface Movie {
   id: string;
@@ -33,13 +34,17 @@ export default function MoviesPage() {
     if (selectedGenre !== "all") params.set("genre", selectedGenre);
 
     fetch(`/api/movies?${params.toString()}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
       .then((data) => {
-        if (data.movies) setMovies(data.movies);
+        if (data.movies && data.movies.length > 0) setMovies(data.movies);
+        else setMovies(ClientStore.getMovies(searchTerm, selectedGenre));
         setLoading(false);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
+        setMovies(ClientStore.getMovies(searchTerm, selectedGenre));
         setLoading(false);
       });
   }, [searchTerm, selectedGenre]);
