@@ -22,7 +22,7 @@ export function Footer() {
                 <ShieldCheck className="w-3 h-3" /> Neon Postgres
               </span>
               <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20">
-                <Sparkles className="w-3 h-3" /> Vercel Ready
+                <Sparkles className="w-3 h-3" /> GitHub Pages Ready
               </span>
             </div>
           </div>

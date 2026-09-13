@@ -1,11 +1,11 @@
 /** @type {import('next').NextConfig} */
-const isGithubActions = process.env.GITHUB_ACTIONS === "true";
+const isProd = process.env.NODE_ENV === "production" || process.env.GITHUB_ACTIONS === "true";
 const repoName = "ciniaapp";
 
 const nextConfig = {
   output: "export",
-  basePath: isGithubActions ? `/${repoName}` : "",
-  assetPrefix: isGithubActions ? `/${repoName}/` : "",
+  basePath: isProd ? `/${repoName}` : "",
+  assetPrefix: isProd ? `/${repoName}/` : "",
   trailingSlash: true,
   images: {
     unoptimized: true,
